@@ -1,0 +1,13 @@
+{
+  "name": "testing_node_crypto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "pbkdf2.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node pbkdf2.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}
