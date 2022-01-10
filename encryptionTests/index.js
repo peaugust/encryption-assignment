@@ -1,14 +1,17 @@
 import { Buffer } from 'buffer';
-import { randomBytes, hkdfSync, pbkdf2Sync, createCipheriv, createDecipheriv } from 'crypto'
+import { randomBytes, hkdfSync, pbkdf2Sync, scryptSync, createCipheriv, createDecipheriv } from 'crypto'
 
 const algorithm = 'aes-256-cbc';
 const salt = randomBytes(16);
+// User's email
+const username = 'freddi@gmail.com'
 // User's password
 const secret = randomBytes(64);
 const key = pbkdf2Sync(secret, salt, 1000, 64, 'sha512')
 const iv = randomBytes(16);
 const clearText = '{"bookmarks": [{"link": "a"}, {"link": "c"}, {"link": "b"}], "passwords": [{"name": "a", "password": "aaa"}]}'
 
+console.log('SALT: ', salt.toString('hex'));
 console.log('PBKDF-KEY: ', key.toString('hex'));
 console.log('IV: ', iv.toString('hex'));
 
@@ -51,6 +54,9 @@ function decrypt(text) {
    // Encrypts output
    var output = encrypt(clearText);
    console.log(output);
+
+   const authKey = scryptSync(derivedKey, username, 64);
+   console.log('HASHED AUTHKEY: ', authKey);
      
    // Decrypts output
    console.log(decrypt(output));
