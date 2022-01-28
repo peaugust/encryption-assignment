@@ -1,5 +1,8 @@
-import readline from 'readline'
-import { registerUser, getLocalUsers } from './index.js'
+import readline from 'node:readline'
+import {
+  registerUser, getLocalUsers
+  // , updateEmail, updatePassword, updateFavoriteWebsites
+} from './index.js'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -54,12 +57,51 @@ const registerUserQuestion = () => {
 
 const listUsers = () => {
   console.log(getLocalUsers())
-  return mainMenuQuestion()
+  // rl.question('Choose an option:\n 1 - Edit an user\n 2 - Exit\n', (option) => {
+  //   console.log(option)
+  //   switch (option) {
+  //     case '1':
+  //       return editUserQuestion()
+  //     case '2':
+  //       rl.close()
+  //     default:
+  //       console.log('Invalid option, please try again!')
+  //       return mainMenuQuestion()
+  //   }
+  // })
 }
+
+// const editUserQuestion = () => {
+//   rl.question('Edit user by id:  ', (userId) => {
+//     const selectedUser = 'testing'
+//     if (selectedUser === null) {
+//       console.log('\n User does not exist! \n')
+//       mainMenuQuestion()
+//     } else {
+//       console.log(`\n Editing user ${user.userId}`)
+//       rl.question('Choose an option:\n 1 - Update user email\n 2 - Update user password\n 3 - Update favorite websites\n  4 - Exit\n', (option) => {
+//         console.log(option)
+//         switch (option) {
+//           case '1':
+//             return updateEmailQuestion()
+//           case '2':
+//             return updatePasswordQuestion()
+//           case '3':
+//             return updateFavoriteWebsitesQuestion()
+//           case '4':
+//             rl.close()
+//           default:
+//             console.log('Invalid option, please try again!')
+//             return mainMenuQuestion()
+//         }
+//       })
+//     }
+//   })
+// }
 
 mainMenuQuestion()
 
 rl.on('close', function () {
-  console.log('\nBYE BYE !!!')
+  console.log('\Closing application')
   process.exit(0)
 })
