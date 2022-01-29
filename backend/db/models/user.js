@@ -8,7 +8,9 @@ const UserModel = (sequelizeInstance) => {
       required: true,
       unique: true,
       validate: {
-        isEmail: true,
+        isEmail: {
+          msg: '\n------------------------------\n ** Invalid email address! ** \n------------------------------\n',
+        },
       },
     },
     authKey: {

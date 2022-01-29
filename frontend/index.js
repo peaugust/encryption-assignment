@@ -1,19 +1,21 @@
+import { signUp } from '../backend/index.js'
 const STORAGE = []
 
-export const registerUser = (email, password, favoriteWebsites) => {
+// [] -> 0
+// [{...}] -> 1
+// [{...}, {...}] -> 2
+
+export const registerUser = async (email, password, favoriteWebsites) => {
   const userEmail = email
   const userPassword = password
   const userFavoriteWebsites = favoriteWebsites
   const userId = STORAGE.length + 1
 
-  console.log('email', userEmail)
-  console.log('userPassword', userPassword)
-  console.log('userFavoriteWebsites', userFavoriteWebsites)
+  const response = await signUp(userEmail, userPassword)
 
-  STORAGE.push({ userId, userEmail, userPassword, userFavoriteWebsites })
-  // TODO: send data
+  if (!response.error) STORAGE.push({ userId, userEmail, userPassword, userFavoriteWebsites })
 
-  return true
+  return response
 }
 
 export const updateEmail = (email) => {
@@ -39,3 +41,5 @@ export const updateFavoriteWebsites = (favoriteWebsites) => {
 }
 
 export const getLocalUsers = () => STORAGE.map((user) => `${user.userId} - ${user.userEmail}`)
+
+export const getUserById = (id) => STORAGE.filter((user) => user.userId == id)

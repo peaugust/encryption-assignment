@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize'
 import * as models from './models/index.js'
 
-console.log('MODELS: ', models)
-
 export const db = {}
 
 export const setupDb = (password) => {
