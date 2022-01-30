@@ -1,5 +1,5 @@
-import { scryptSync } from 'crypto'
 import { syncDb, setupDb, db } from './db/db.js'
+import { randomBytes, scryptSync, pbkdf2Sync } from 'crypto'
 
 let database = undefined
 
@@ -17,23 +17,25 @@ const createHashedAuthToken = (username, authToken) => {
 export const signIn = async (username, authToken) => {
   // Create the hashed authentication token
   const hashedAuthToken = createHashedAuthToken(username, authToken)
-
   // Compare if the DB has an user that matches with the username and hashedAuthToken given
   try {
     // console.log('DATABASE', database)
     const result = await db['User'].findByPk(hashedAuthToken)
-    // If success return the encrypted data
-    // console.log('RESULT', result)
+    if (result) {
+      const { email, encryptedData } = result
+      return { error: false, response: { email, encryptedData } }
+    } else {
+      return { error: true, message: '\n-----------------------\n ** User not found ** \n-----------------------\n' }
+    }
   } catch (err) {
-    // If error retrun an error message
-    // console.log('ERROR', err)
+    return { error: true, message: err.message }
   }
 }
 
 export const signUp = async (username, authToken, encryptedData) => {
   // Create the hashed authentication token
   const hashedAuthToken = createHashedAuthToken(username, authToken)
-
+  console.log(encryptedData, typeof encryptedData)
   try {
     const result = await db['User'].create({ email: username, authKey: hashedAuthToken, encryptedData: encryptedData })
     return { error: false, message: `\n----------------------------------------\n **${username} was successfully registered!** \n----------------------------------------\n` }
@@ -60,6 +62,34 @@ export const updateEncryptedData = async (username, authToken, encryptedData) =>
   }
 }
 
+const getPbkdfKey = async (key) => {
+  const salt = await getSalt()
+  return pbkdf2Sync(key, salt, 1000, 64, 'sha512')
+}
+
+export const getSalt = async () => {
+  const result = await db['Secret'].findByPk('SALT')
+  if (result) {
+    return result.value
+  } else {
+    const salt = await getPbkdfKey(randomBytes(16))
+    db['Secret'].create({ name: 'SALT', value: salt })
+    return getSalt()
+  }
+}
+
+export const getIv = async () => {
+  const result = await db['Secret'].findByPk('IV')
+  if (result) {
+    return result.value
+  } else {
+    const iv = await getPbkdfKey(randomBytes(16))
+    db['Secret'].create({ name: 'IV', value: iv })
+    return getIv()
+  }
+}
+
+//TODO: Export initialize to FrontEnd // Create a question to the user init the db
 await initialize('password')
 
 // For manual testing

@@ -3,6 +3,7 @@ import {
   registerUser,
   getLocalUsers,
   getUserById,
+  login,
   // , updateEmail, updatePassword, updateFavoriteWebsites
 } from './index.js'
 
@@ -24,8 +25,7 @@ const mainMenuQuestion = () => {
         case '2':
           return accessUserAccount()
         case '3':
-          console.log('TODO: Login with Sync')
-          return mainMenuQuestion()
+          return signInQuestions()
         case '4':
           rl.close()
         default:
@@ -34,6 +34,34 @@ const mainMenuQuestion = () => {
       }
     }
   )
+}
+
+const signInQuestions = () => {
+  rl.question('Enter your email:  ', (email) => {
+    rl.question('Enter your password:  ', async (password) => {
+      const response = await login(email, password)
+      const { error, message } = response
+      if (error) {
+        console.log(message)
+        rl.question('Choose an option:\n1 - Try again\n2 - Main menu\n3 - Exit Application\n', (option) => {
+          switch (option) {
+            case '1':
+              return signInQuestions()
+            case '2':
+              return mainMenuQuestion()
+            case '3':
+              rl.close()
+            default:
+              console.log('\n------------------------------------------\n** Invalid option - Going to main menu **\n------------------------------------------\n')
+              return mainMenuQuestion()
+          }
+        })
+      } else {
+        console.log(message)
+        mainMenuQuestion()
+      }
+    })
+  })
 }
 
 const registerUserQuestion = () => {

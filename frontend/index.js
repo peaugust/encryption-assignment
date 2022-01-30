@@ -1,4 +1,6 @@
-import { signUp } from '../backend/index.js'
+import { signUp, signIn, getSalt, getIv } from '../backend/index.js'
+import { hkdfSync, pbkdf2Sync, createCipheriv, createDecipheriv } from 'crypto'
+
 const STORAGE = []
 
 // [] -> 0
@@ -7,13 +9,14 @@ const STORAGE = []
 
 export const registerUser = async (email, password, favoriteWebsites) => {
   const userEmail = email
-  const userPassword = password
-  const userFavoriteWebsites = favoriteWebsites
+  const userFavoriteWebsites = JSON.stringify(favoriteWebsites)
   const userId = STORAGE.length + 1
 
-  const response = await signUp(userEmail, userPassword)
+  const hkdfKey = await getHkdfKey(await getPbkdfKey(password))
+  console.log(userFavoriteWebsites)
+  const response = await signUp(userEmail, hkdfKey, await encryptData(userFavoriteWebsites, hkdfKey))
 
-  if (!response.error) STORAGE.push({ userId, userEmail, userPassword, userFavoriteWebsites })
+  if (!response.error) STORAGE.push({ userId, userEmail, userPassword: hkdfKey, userFavoriteWebsites })
 
   return response
 }
@@ -43,3 +46,43 @@ export const updateFavoriteWebsites = (favoriteWebsites) => {
 export const getLocalUsers = () => STORAGE.map((user) => `${user.userId} - ${user.userEmail}`)
 
 export const getUserById = (id) => STORAGE.filter((user) => user.userId == id)
+
+export const login = async (email, password) => {
+  const hkdfKey = await getHkdfKey(await getPbkdfKey(password))
+  const response = await signIn(email, hkdfKey)
+  console.log('XANFS', response)
+  const decryptedData = await decryptData(response.response.encryptedData, hkdfKey)
+  console.log(decryptedData)
+  // TODO: Review this response
+  return response
+}
+
+const getPbkdfKey = async (password) => {
+  console.log(password, typeof password)
+  const salt = await getSalt()
+  return pbkdf2Sync(password, salt, 1000, 64, 'sha512')
+}
+
+const getHkdfKey = async (password) => {
+  console.log(password, typeof password)
+
+  const salt = await getSalt()
+  return hkdfSync('sha512', password, salt, 'info', 32)
+}
+
+const encryptData = async (clearData, key) => {
+  const cipher = createCipheriv('aes-256-cbc', Buffer.from(key), await getIv().toString('hex'))
+  let encrypted = cipher.update(clearData)
+  encrypted = Buffer.concat([encrypted, cipher.final()])
+
+  return encrypted.toString('hex')
+}
+
+const decryptData = async (encryptedData, key) => {
+  let encryptedDataBuffer = Buffer.from(encryptedData, 'hex')
+  let decipher = createDecipheriv('aes-256-cbc', Buffer.from(key), await getIv().toString('hex'))
+  let decrypted = decipher.update(Buffer.from(encryptedDataBuffer))
+  decrypted = Buffer.concat([decrypted, decipher.final()])
+
+  return decrypted.toString()
+}
