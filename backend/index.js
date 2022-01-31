@@ -3,30 +3,16 @@ import { randomBytes, scryptSync, pbkdf2Sync } from 'crypto'
 
 let database = undefined
 
+// Initialize db and create Users and Secret tables
 export const initialize = async (dbPassword) => {
   setupDb(dbPassword)
   await syncDb()
 }
 
+// scryptSync(password, salt, 64 bytes)
 const createHashedAuthToken = (username, authToken) => {
   const hashedAuthToken = scryptSync(authToken, username, 64)
   return hashedAuthToken
-}
-
-export const signIn = async (username, authToken) => {
-  // Create the hashed authentication token
-  const hashedAuthToken = createHashedAuthToken(username, authToken)
-  // Compare if the DB has an user that matches with the username and hashedAuthToken given
-  try {
-    const result = await db['User'].findByPk(hashedAuthToken)
-    if (result) {
-      return { error: false, response: result.encryptedData }
-    } else {
-      return { error: true, message: '\n-----------------------\n ** User not found ** \n-----------------------\n' }
-    }
-  } catch (err) {
-    return { error: true, message: err.message }
-  }
 }
 
 export const signUp = async (username, authToken, encryptedData) => {
@@ -44,6 +30,22 @@ export const signUp = async (username, authToken, encryptedData) => {
   }
 }
 
+export const signIn = async (username, authToken) => {
+  // Create the hashed authentication token
+  const hashedAuthToken = createHashedAuthToken(username, authToken)
+  // Compare if the DB has an user that matches with hashedAuthToken given
+  try {
+    const result = await db['User'].findByPk(hashedAuthToken)
+    if (result) {
+      return { error: false, response: result.encryptedData }
+    } else {
+      return { error: true, message: '\n-----------------------\n ** User not found ** \n-----------------------\n' }
+    }
+  } catch (err) {
+    return { error: true, message: err.message }
+  }
+}
+
 export const updateEncryptedData = async (username, authToken, encryptedData) => {
   // Create the hashed authentication token
   const hashedAuthToken = createHashedAuthToken(username, authToken)
@@ -52,7 +54,7 @@ export const updateEncryptedData = async (username, authToken, encryptedData) =>
     // Get the user using the Primary Key
     const result = await db['User'].findByPk(hashedAuthToken)
 
-    // Override the encrypted data
+    // Update encrypted data
     result.encryptedData = encryptedData
 
     // Save the operation in the DB
@@ -66,11 +68,6 @@ export const updateEncryptedData = async (username, authToken, encryptedData) =>
   }
 }
 
-const getPbkdfKey = async (key) => {
-  const salt = await getSalt()
-  return pbkdf2Sync(key, salt, 1000, 64, 'sha512')
-}
-
 export const getSalt = async () => {
   const result = await db['Secret'].findByPk('SALT')
   if (result) {
@@ -80,6 +77,12 @@ export const getSalt = async () => {
     await db['Secret'].create({ name: 'SALT', value: salt })
     return getSalt()
   }
+}
+
+// pbkdf2Sync(key, key salt, iterations, key length, hash algorithm sha512)
+const getPbkdfKey = async (key) => {
+  const salt = await getSalt()
+  return pbkdf2Sync(key, salt, 1000, 64, 'sha512')
 }
 
 export const getIv = async () => {
