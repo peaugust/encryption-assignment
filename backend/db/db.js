@@ -7,7 +7,7 @@ export const setupDb = (password) => {
   const sequelize = new Sequelize(null, null, password, {
     dialect: 'sqlite',
     dialectModulePath: '@journeyapps/sqlcipher',
-    storage: './src/database.sqlite',
+    storage: '../backend/db/data/database.sqlite',
   })
 
   Object.keys(models).forEach((name) => {
