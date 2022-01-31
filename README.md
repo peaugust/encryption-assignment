@@ -57,29 +57,29 @@ Ao listar os usuário, o sistema pede que você escolha um usuário da lista, pa
 
 Em seguida, será mostrado o menu do usuário que permite as seguintes opções:
 
-1 - Add a new bookmark
+##### 1 - Add a new bookmark
   - Permite adicionar um novo favorito à lista de favoritos do usuário
 
-2 - List your bookmarks
+##### 2 - List your bookmarks
   - Lista todos os favoritos do usuário
 
-3 - Logout
+##### 3 - Logout
   - Sai da conta do usuário, voltando ao menu principal
 
-4 - Exit the application
+##### 4 - Exit the application
   - Encerra a aplicação
 
 Caso você tente acessar esse menu, mas não existam usuários salvos localmente, o programa retornará a seguinte mensagem: `There isnt any user logged locally, you can try to: Login on Sync to retrieve its data or create a new user`. Portanto, será necessário criar um novo usuário ou selecionar a opção `Login using Sync` para fazer login com as credenciais de um usuário existente.
 
 
 
-3 - Login using Sync
+#### 3 - Login using Sync
 
 Use essa opção para fazer login com um usuário que já foi autenticado previamente. Esse menu pede seu email e senha.
 
 Caso seu login seja feito com sucesso essa mensagem será exibida: `User <email> added to local storage! - Select the menu option: Access user account to login into this account`
 
-4 - Exit the application
+#### 4 - Exit the application
 - Encerra a aplicação
 
 
