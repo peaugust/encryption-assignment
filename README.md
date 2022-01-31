@@ -97,3 +97,8 @@ link - google.com,
 link - wikipedia.com
 
 Tente adicionar um novo favorito, reiniciar a aplicação e autenticar novamente no SYNC para ver suas alterações.
+
+
+### Visualizar o banco de dados
+
+Caso queira visualizar as tabelas do banco de dados recomendamos utilizar a ferramenta [DB Browser for SQLite](https://sqlitebrowser.org/)
