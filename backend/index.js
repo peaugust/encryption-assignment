@@ -20,7 +20,7 @@ export const signIn = async (username, authToken) => {
   try {
     const result = await db['User'].findByPk(hashedAuthToken)
     if (result) {
-      return { error: false, response: result }
+      return { error: false, response: result.encryptedData }
     } else {
       return { error: true, message: '\n-----------------------\n ** User not found ** \n-----------------------\n' }
     }
@@ -33,7 +33,7 @@ export const signUp = async (username, authToken, encryptedData) => {
   // Create the hashed authentication token
   const hashedAuthToken = createHashedAuthToken(username, authToken)
   try {
-    const result = await db['User'].create({ email: username, authKey: hashedAuthToken, encryptedData: encryptedData })
+    await db['User'].create({ email: username, authKey: hashedAuthToken, encryptedData })
     return { error: false, response: `\n----------------------------------------\n ** ${username} was successfully registered! ** \n----------------------------------------\n` }
   } catch (err) {
     const response =
@@ -77,7 +77,7 @@ export const getSalt = async () => {
     return result.value
   } else {
     const salt = randomBytes(64)
-    const result = await db['Secret'].create({ name: 'SALT', value: salt })
+    await db['Secret'].create({ name: 'SALT', value: salt })
     return getSalt()
   }
 }
@@ -88,7 +88,7 @@ export const getIv = async () => {
     return result.value
   } else {
     const iv = await getPbkdfKey(randomBytes(16))
-    db['Secret'].create({ name: 'IV', value: iv })
+    await db['Secret'].create({ name: 'IV', value: iv })
     return getIv()
   }
 }

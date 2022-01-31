@@ -50,8 +50,8 @@ export const login = async (email, password) => {
     return { error, response }
   }
 
-  console.log(response)
-  const decryptedDataResponse = await decryptData(response.encryptedData, hkdfKey)
+  console.log('\nENCRYPTED DATA: ', response)
+  const decryptedDataResponse = await decryptData(response, hkdfKey)
 
   if (decryptedDataResponse.error) {
     return decryptedDataResponse
@@ -61,7 +61,7 @@ export const login = async (email, password) => {
 
   STORAGE.push({ userId: id, userEmail: email, userPassword: hkdfKey, userFavoriteWebsites: decryptedDataResponse.response })
 
-  console.log('DECRYPTED DATA: ', decryptedDataResponse.response)
+  console.log('\nDECRYPTED DATA: ', decryptedDataResponse.response)
 
   return { error: false, response: STORAGE[id - 1] }
 }
@@ -72,8 +72,6 @@ const getPbkdfKey = async (password) => {
 }
 
 const getHkdfKey = async (password) => {
-  console.log(password, typeof password)
-
   const salt = await getSalt()
   return hkdfSync('sha512', password, salt, 'info', 32)
 }
