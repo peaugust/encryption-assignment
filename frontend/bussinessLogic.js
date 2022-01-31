@@ -30,20 +30,6 @@ export const registerUser = async (email, password, favoriteWebsites) => {
   return { error, response }
 }
 
-export const updateEmail = (email) => {
-  const newLogin = email
-
-  console.log('newLogin', newLogin)
-  // send data
-}
-
-export const updatePassword = (password) => {
-  const newFavoriteWebsites = password
-
-  console.log('newFavoriteWebsites', newPassword)
-  // send data
-}
-
 export const getLocalUsers = () => STORAGE.map((user) => `${user.userId} - ${user.userEmail}`)
 
 export const getUserById = (id) => STORAGE.filter((user) => user.userId == id)
